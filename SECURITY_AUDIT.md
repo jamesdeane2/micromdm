@@ -45,7 +45,7 @@ MicroMDM v1 entered maintenance mode in 2024 with official support ending Decemb
 
 ### Summary
 - **3 archived dependencies** (gorilla/mux, gorilla/handlers, boltdb/bolt) — all stable with no active CVEs
-- **1 stale dependency** (go-oauth from 2018) — potential concern for OAuth token handling
+- **1 stale dependency** (go-oauth) — OAuth 1.0a for Apple DEP, narrow scope, no replacement available
 - **Core crypto/network deps are current** — x/crypto and x/net are recent versions
 - **No known CVEs** found against current pinned versions (`govulncheck ./...` — zero findings as of 2026-03-18)
 
@@ -58,9 +58,9 @@ MicroMDM v1 entered maintenance mode in 2024 with official support ending Decemb
 | 1 | ~~Update `go` directive to 1.21+~~ | ✅ Done | Bumped to go 1.25.0 |
 | 2 | ~~Run `govulncheck` in CI pipeline~~ | ✅ Done | Added security.yml workflow |
 | 3 | ~~Enable Dependabot on fork~~ | ✅ Done | Weekly Go modules + monthly Actions |
-| 4 | Evaluate replacing `garyburd/go-oauth` with `golang.org/x/oauth2` | Medium | 2-4 hours |
+| 4 | ~~Evaluate replacing `garyburd/go-oauth`~~ | ⏸️ Deferred | Apple DEP uses OAuth 1.0a, not 2.0 — `golang.org/x/oauth2` is not a valid replacement. Library is used in one function (`dep/client.go:newSession`) for HMAC-SHA1 signing only. Zero CVEs. No migration path without rewriting OAuth 1.0a from scratch. |
 | 5 | ~~Migrate boltdb/bolt to bbolt~~ | ⏸️ Blocked | scep/v2 v2.3.0 requires boltdb/bolt; no bbolt-compatible version exists. No CVEs on boltdb. Will revisit if scep updates. |
-| 6 | Replace `pkg/errors` with stdlib `errors`/`fmt.Errorf` | Low | 1 hour |
+| 6 | ~~Replace `pkg/errors` with stdlib~~ | ⏸️ Deferred | Zero CVEs, no security impact. Pure code hygiene — not worth the regression risk for a maintenance fork. |
 
 ---
 
@@ -87,12 +87,16 @@ James Deane, Iglu Technology — sole maintainer of this fork.
 
 ## 5. Overall Assessment
 
-**Risk: LOW-MEDIUM**
+**Risk: LOW**
 
-The codebase is in good shape after initial patching. All critical dependencies are current, Go version is up to date, and automated vulnerability scanning is in place. Remaining concerns:
-1. `boltdb/bolt` is archived but blocked by scep/v2 dependency — zero CVEs, embedded DB with no network exposure
-2. A few other archived dependencies (gorilla/mux, gorilla/handlers, pkg/errors) — all stable, no CVEs
-3. The OAuth library is old but handles a narrow scope
+All actionable items completed. All critical dependencies are current, Go version is up to date, and automated vulnerability scanning is in place. Remaining archived/stale dependencies have been individually assessed:
+
+1. `boltdb/bolt` — archived, zero CVEs, embedded DB with no network exposure. Blocked by scep/v2 upstream dependency.
+2. `garyburd/go-oauth` — stale, zero CVEs. Used for Apple DEP OAuth 1.0a only (one function). No drop-in replacement exists (OAuth 2.0 libraries are not compatible).
+3. `gorilla/mux`, `gorilla/handlers` — archived, zero CVEs, stable and widely deployed. No action needed.
+4. `pkg/errors` — archived, zero CVEs. Superseded by stdlib but no security benefit to replacing.
+
+**All deferred items have documented rationale. None represent unpatched vulnerabilities.**
 
 **govulncheck result: ZERO vulnerabilities** (2026-03-18)
 
