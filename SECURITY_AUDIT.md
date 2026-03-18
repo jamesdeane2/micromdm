@@ -17,25 +17,24 @@ MicroMDM v1 entered maintenance mode in 2024 with official support ending Decemb
 ## 2. Dependency Audit
 
 ### Go Version
-- **go.mod declares:** `go 1.17` (released Aug 2021)
-- **Current stable Go:** 1.22+
-- **Action required:** Update to `go 1.21` minimum. Go 1.17 is EOL and no longer receives security patches.
+- **go.mod declares:** `go 1.25.0`
+- **Status:** ✅ Current (updated 2026-03-18 from go 1.17)
 
 ### Direct Dependencies
 
 | Package | Version | Status | Risk |
 |---------|---------|--------|------|
-| `golang.org/x/crypto` | v0.33.0 | ✅ Current | Low |
-| `golang.org/x/net` | v0.34.0 | ✅ Current | Low |
-| `google.golang.org/protobuf` | v1.33.0 | ✅ Current | Low |
+| `golang.org/x/crypto` | v0.49.0 | ✅ Current | Low |
+| `golang.org/x/net` | v0.52.0 | ✅ Current | Low |
+| `google.golang.org/protobuf` | v1.36.11 | ✅ Current | Low |
 | `github.com/gorilla/mux` | v1.8.1 | ⚠️ Archived | Low (stable, no known CVEs) |
 | `github.com/gorilla/handlers` | v1.5.2 | ⚠️ Archived | Low (stable) |
 | `github.com/boltdb/bolt` | v1.3.1 | ⚠️ Archived | Medium (embedded DB, no network exposure) |
 | `github.com/go-kit/kit` | v0.13.0 | ✅ Active | Low |
 | `github.com/google/uuid` | v1.6.0 | ✅ Active | Low |
 | `github.com/micromdm/scep/v2` | v2.3.0 | ✅ Maintained by same org | Low |
-| `github.com/micromdm/plist` | v0.2.1 | ✅ Maintained | Low |
-| `github.com/garyburd/go-oauth` | 2018 commit | ⚠️ Stale | Medium (OAuth handling) |
+| `github.com/micromdm/plist` | v0.2.2 | ✅ Maintained | Low |
+| `github.com/garyburd/go-oauth` | v0.0.0-20250708 | ⚠️ Stale | Medium (OAuth handling) |
 | `github.com/pkg/errors` | v0.9.1 | ⚠️ Archived (replaced by stdlib) | Low |
 | `github.com/RobotsAndPencils/buford` | v0.14.0 | ⚠️ Low activity | Low (APNS push) |
 | `github.com/smallstep/pkcs7` | v0.2.1 | ✅ Active | Low |
@@ -48,7 +47,7 @@ MicroMDM v1 entered maintenance mode in 2024 with official support ending Decemb
 - **3 archived dependencies** (gorilla/mux, gorilla/handlers, boltdb/bolt) — all stable with no active CVEs
 - **1 stale dependency** (go-oauth from 2018) — potential concern for OAuth token handling
 - **Core crypto/network deps are current** — x/crypto and x/net are recent versions
-- **No known CVEs** found against current pinned versions (manual assessment; govulncheck recommended as part of CI)
+- **No known CVEs** found against current pinned versions (`govulncheck ./...` — zero findings as of 2026-03-18)
 
 ---
 
@@ -56,11 +55,11 @@ MicroMDM v1 entered maintenance mode in 2024 with official support ending Decemb
 
 | # | Action | Priority | Effort |
 |---|--------|----------|--------|
-| 1 | Update `go` directive to 1.21+ | High | 1 hour |
-| 2 | Run `govulncheck` in CI pipeline | High | 30 min |
-| 3 | Enable Dependabot on fork | High | 10 min |
+| 1 | ~~Update `go` directive to 1.21+~~ | ✅ Done | Bumped to go 1.25.0 |
+| 2 | ~~Run `govulncheck` in CI pipeline~~ | ✅ Done | Added security.yml workflow |
+| 3 | ~~Enable Dependabot on fork~~ | ✅ Done | Weekly Go modules + monthly Actions |
 | 4 | Evaluate replacing `garyburd/go-oauth` with `golang.org/x/oauth2` | Medium | 2-4 hours |
-| 5 | Consider migrating from `boltdb/bolt` to `go.etcd.io/bbolt` (maintained fork) | Medium | 1-2 hours |
+| 5 | ~~Migrate boltdb/bolt to bbolt~~ | ⏸️ Blocked | scep/v2 v2.3.0 requires boltdb/bolt; no bbolt-compatible version exists. No CVEs on boltdb. Will revisit if scep updates. |
 | 6 | Replace `pkg/errors` with stdlib `errors`/`fmt.Errorf` | Low | 1 hour |
 
 ---
@@ -90,12 +89,14 @@ James Deane, Iglu Technology — sole maintainer of this fork.
 
 **Risk: LOW-MEDIUM**
 
-The codebase is in reasonable shape. The critical crypto and network dependencies are up to date. The main concerns are:
-1. The `go 1.17` directive (easy fix)
-2. A few archived dependencies that are stable but won't receive future patches
+The codebase is in good shape after initial patching. All critical dependencies are current, Go version is up to date, and automated vulnerability scanning is in place. Remaining concerns:
+1. `boltdb/bolt` is archived but blocked by scep/v2 dependency — zero CVEs, embedded DB with no network exposure
+2. A few other archived dependencies (gorilla/mux, gorilla/handlers, pkg/errors) — all stable, no CVEs
 3. The OAuth library is old but handles a narrow scope
 
-For CE+ purposes: this is an internally maintained fork with documented patching process, dependency monitoring, and a clear maintenance cadence. The software receives security updates as needed.
+**govulncheck result: ZERO vulnerabilities** (2026-03-18)
+
+For CE+ purposes: this is an internally maintained fork with documented patching process, automated dependency monitoring (Dependabot + govulncheck CI), and a clear maintenance cadence. The software receives security updates as needed.
 
 ---
 

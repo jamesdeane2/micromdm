@@ -28,6 +28,7 @@ require (
 	github.com/korylprince/go-cpio-odc v0.9.5 // indirect
 	github.com/korylprince/goxar v0.1.2 // indirect
 	github.com/smallstep/scep v0.0.0-20260311011040-6d82bb27e647 // indirect
+	github.com/stretchr/testify v1.10.0 // indirect
 	golang.org/x/exp v0.0.0-20260312153236-7ab1446f8b90 // indirect
 	golang.org/x/sys v0.42.0 // indirect
 	golang.org/x/text v0.35.0 // indirect

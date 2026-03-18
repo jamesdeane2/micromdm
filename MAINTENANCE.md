@@ -38,3 +38,5 @@ See [CHANGELOG.md](CHANGELOG.md) for detailed release history.
 | Date | Action |
 |------|--------|
 | 2026-03-18 | Fork created from upstream v1.13.1. Initial dependency audit completed. Dependabot enabled. govulncheck CI added. |
+| 2026-03-18 | Go version bumped 1.17→1.25.0. All dependencies updated to latest. govulncheck: zero vulnerabilities. |
+| 2026-03-18 | bbolt migration evaluated and deferred — scep/v2 v2.3.0 requires boltdb/bolt. No CVEs on boltdb. |
