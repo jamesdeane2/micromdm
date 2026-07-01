@@ -13,6 +13,9 @@ jobs:
   govulncheck:
     name: Vulnerability Check
     runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      security-events: write   # required to upload SARIF to Code Scanning
     steps:
       - uses: actions/checkout@v6
 
@@ -23,7 +26,19 @@ jobs:
       - name: Install govulncheck
         run: go install golang.org/x/vuln/cmd/govulncheck@latest
 
-      - name: Run govulncheck
+      # Machine-readable results for the CVE dashboard (incl. reachability).
+      - name: Run govulncheck (SARIF)
+        run: govulncheck -format sarif ./... > govulncheck.sarif
+        continue-on-error: true   # still upload + gate even when vulns are found
+
+      - name: Upload SARIF to Code Scanning
+        uses: github/codeql-action/upload-sarif@v3
+        with:
+          sarif_file: govulncheck.sarif
+          category: govulncheck
+
+      # Keep the hard fail — a red build is the early-warning signal.
+      - name: Fail on reachable vulnerabilities
         run: govulncheck ./...
 
       - name: Check go.mod tidiness
