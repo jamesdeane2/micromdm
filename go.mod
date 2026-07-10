@@ -16,7 +16,7 @@ require (
 	github.com/micromdm/scep/v2 v2.3.0
 	github.com/pkg/errors v0.9.1
 	github.com/smallstep/pkcs7 v0.2.1
-	golang.org/x/crypto v0.51.0
+	golang.org/x/crypto v0.52.0
 	golang.org/x/net v0.55.0
 	google.golang.org/protobuf v1.36.11
 )
